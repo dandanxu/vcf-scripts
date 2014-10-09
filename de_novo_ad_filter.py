@@ -4,7 +4,7 @@ import time
 
 MOTHER_SAMPLE = 9
 FATHER_SAMPLE = 10
-TOTAL_AD = 30
+TOTAL_AD = 100
 
 
 def de_novo_one_parent(progeny, parent):
@@ -31,7 +31,7 @@ def run(filepath):
 
     # opens file with PyVCF
     vcf_reader = vcf.Reader(open(filepath, 'rb'))
-    output = 'output_de_novo_ad_filter.vcf'
+    output = 'output_de_novo_100ad_filter.vcf'
     vcf_writer = vcf.Writer(open(output, 'w'), vcf_reader)
 
     SAMPLES = ['701-1-1', '701-1-3', '701-1-6',
@@ -67,7 +67,13 @@ def run(filepath):
                 match_type = 2
 
         try:
-            if sum(mother['AD']) < TOTAL_AD or sum(father['AD']) < TOTAL_AD:
+            if sum(mother['AD']) < TOTAL_AD:
+                match_type = 0
+        except:
+            pass
+
+        try:
+            if sum(father['AD']) < TOTAL_AD:
                 match_type = 0
         except:
             pass
@@ -83,12 +89,12 @@ def run(filepath):
                             if de_novo_one_parent(progeny_gt, one_parent):
                                 de_novo_counts[progeny.sample] += 1
                                 de_novo = True
-                                print progeny, one_parent
+                                print progeny, one_parent, mother['AD'], father['AD']
                         elif match_type == 2:
                             if de_novo_both_parents(progeny_gt, both_parents):
                                 de_novo = True
                                 de_novo_counts[progeny.sample] += 1
-                                print progeny, both_parents
+                                print progeny, both_parents, mother['AD'], father['AD']
                         else:
                             pass
                 except:
